@@ -5,7 +5,7 @@
 // it involves the use of an array
 
 
-int inPin = 5;             // analog 5
+int inPin = 3;             // analog 5
 int val = 0;                 // where to store info from analog 5
 int pin11 = 11;         // output of red led
 int x;
@@ -19,7 +19,7 @@ void setup() {
 void loop() {
  
   val = analogRead(inPin);                    // reads in the values from analog 5 and
-  Serial.print(val);     
+  //Serial.println(val);     
                                                                    //assigns them to val
   if(val >= 1){
    
@@ -33,6 +33,6 @@ void loop() {
                                                                  // to turn off the light if there is no EMF detected
   }
  
- //Serial.println(x);                                // use output to aid in calibrating
+ Serial.println(x);                                // use output to aid in calibrating
  
 }
