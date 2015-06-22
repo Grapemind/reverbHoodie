@@ -6,9 +6,9 @@ void setup() {
 }
 
 void loop() {
+  map(sensorValue, 0, 1023, 0, 300);
+
   sensorValue = analogRead(sensorPin);
-  //Serial.println(sensorValue);
-  delay(500);
 
   if (sensorValue >= 0 && sensorValue < 50) {
     Serial.println(1);
@@ -17,4 +17,17 @@ void loop() {
   if (sensorValue > 50 && sensorValue < 100) {
     Serial.println(2);
   }
+
+  if (sensorValue > 100 && sensorValue < 150) {
+    Serial.println(3);
+  }
+
+  if (sensorValue > 150 && sensorValue < 200) {
+    Serial.println(4);
+  }
+
+  if (sensorValue > 250 && sensorValue < 300) {
+    Serial.println(5);
+  }
+  delay(500);
 }
