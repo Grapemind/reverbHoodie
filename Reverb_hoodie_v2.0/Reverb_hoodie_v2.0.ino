@@ -25,7 +25,7 @@ int channel[CHANNELS];
 //  Pulse VARIABLES
 int pulsePin = 0;                 // Pulse Sensor purple wire connected to analog pin 0
 int blinkPin = 4;                // pin to blink led at each beat
-int fadePin = 3;                  // pin to do fancy classy fading blink at each beat
+int fadePin = 5;                  // pin to do fancy classy fading blink at each beat
 int fadeRate = 0;                 // used to fade LED on with PWM on fadePin
 
 
@@ -38,7 +38,7 @@ volatile boolean QS = false;        // becomes true when Arduoino finds a beat.
 // End of pulse
 
 
-int ledPin = 5;
+int ledPin = 6;
 int ledVal;
 int newVal;
 
@@ -93,6 +93,7 @@ void emf() {
   averaging = 0;
   Serial.print("EMF val: "); 
   Serial.print(val);
+  Serial.print("\t");
 }
 
 
@@ -170,7 +171,6 @@ void outputChannels(void)
     if ( channel[i] > norm ) norm = channel[i];
 
   // now output the data
-  Serial.print('|');
   for ( int i = 0 ; i < CHANNELS ; i++)
   {
     int pos;
@@ -186,13 +186,14 @@ void outputChannels(void)
     if ( pos > 9 ) pos = 9;
 
     // print it out
-    Serial.print(channel[i]);
+    //Serial.print(channel[i]);
     channel[i] = 0;
   }
 
   // indicate overall power
-  Serial.print("| ");
-  Serial.println(norm);
+  Serial.print("Norm :");
+  Serial.print(norm);
+  Serial.print("\t");
   ledVal = norm;
   newVal = map(ledVal, 5, 25, 0, 255);
   Serial.print("LED val :");
@@ -241,6 +242,7 @@ void setup()
   // make sure RF-section is set properly
   // - just write default value...
   setRegister(_NRF24_RF_SETUP, 0x0F);
+  
 
 }
 
@@ -252,7 +254,6 @@ void ledFadeToBeat(){
 
 void loop()
 {
-  
   if (QS == true){                       // Quantified Self flag is true when arduino finds a heartbeat
         fadeRate = 255;                  // Set 'fadeRate' Variable to 255 to fade LED with pulse
         QS = false;                      // reset the Quantified Self flag for next time    
