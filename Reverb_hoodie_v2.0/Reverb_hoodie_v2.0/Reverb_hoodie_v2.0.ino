@@ -289,6 +289,6 @@ void loop()
   // output the result
   outputChannels();
   analogWrite(ledPin, newVal);
-  sendLEDPacket(ledVal);
+  //sendLEDPacket(ledVal);
 }
 
