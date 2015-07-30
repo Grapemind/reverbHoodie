@@ -22,8 +22,8 @@ int led5 = 7;
 int led6 = 8;
 int led7 = 9;
 int led8 = 10;
-int led9 = 11;
-int led10 = 12;
+//int led9 = 11;
+//int led10 = 12;
 
 /* Hoodie-Button*/
 // Not yet implemented in loop
@@ -59,7 +59,7 @@ int fadeRate = 0;                 // used to fade LED on with PWM on fadePin
 // these variables are volatile because they are used during the interrupt service routine!
 volatile int BPM;                   // used to hold the pulse rate
 volatile int Signal;                // holds the incoming raw data
-volatile int IBI = 600;             // holds the time between beats, must be seeded! 
+volatile int IBI = 600;             // holds the time between beats, must be seeded!
 volatile boolean Pulse = false;     // true when pulse wave is high, false when it's low
 volatile boolean QS = false;        // becomes true when Arduoino finds a beat.
 /* End of pulse */
@@ -69,16 +69,18 @@ int ledVal;
 int newVal;
 
 
+int yeah = 0;
+
 /* Setup */
 
 void setup()
 {
   Serial.begin(57600);
-  interruptSetup();     // sets up to read Pulse Sensor signal every 2mS 
-  
+  interruptSetup();     // sets up to read Pulse Sensor signal every 2mS
+
   pinMode(El_wire, OUTPUT);         // El-wire pin -- channel A
-  pinMode(blinkPin,OUTPUT);         // pin that will blink to your heartbeat!
-  pinMode(fadePin,OUTPUT);          // pin that will fade to your heartbeat!
+  pinMode(blinkPin, OUTPUT);        // pin that will blink to your heartbeat!
+  pinMode(fadePin, OUTPUT);         // pin that will fade to your heartbeat!
   pinMode(ledPin, OUTPUT);
   pinMode(buttonPin, INPUT);        // Hoodie Button
 
@@ -103,38 +105,137 @@ void setup()
 
 void loop()
 {
-  if (QS == true){                       // Quantified Self flag is true when arduino finds a heartbeat
-        fadeRate = 255;                  // Set 'fadeRate' Variable to 255 to fade LED with pulse
-        QS = false;                      // reset the Quantified Self flag for next time    
-     }
-     
+  if (QS == true) {                      // Quantified Self flag is true when arduino finds a heartbeat
+    fadeRate = 255;                  // Set 'fadeRate' Variable to 255 to fade LED with pulse
+    QS = false;                      // reset the Quantified Self flag for next time
+  }
+
   ledFadeToBeat();
   delay(20);
   emf();            // initialise EMF
+
+  if (val >= 120) {
+    digitalWrite(3, HIGH);
+    delay(1000);
+  } else {
+    digitalWrite(3, LOW);
+  }
+
   scanChannels();   // Scan channels
   outputChannels(); // output the result
   analogWrite(ledPin, newVal);
-  
+}
+
+/* Methods and functions */
+// Turned in so we can return value in the loop.
+
+
+/* LED patterns */
+void pattern(){
+  digitalWrite(led1, HIGH);
+  digitalWrite(led8, HIGH);
+  delay(500);
+  digitalWrite(led2, HIGH);
+  digitalWrite(led7, HIGH);
+  digitalWrite(led1, LOW);
+  digitalWrite(led8, LOW);
+  delay(500);
+  digitalWrite(led3, HIGH);
+  digitalWrite(led6, HIGH);
+  digitalWrite(led2, LOW);
+  digitalWrite(led7, LOW);
+  delay(500);
+  digitalWrite(led4, HIGH);
+  digitalWrite(led5, HIGH);
+  digitalWrite(led3, LOW);
+  digitalWrite(led6, LOW);
+  delay(500)
+  digitalWrite(led4, LOW);
+  digitalWrite(led5, LOW);
+  delay(500);
+  digitalWrite(led4, HIGH);
+  digitalWrite(led5, HIGH);
+  digitalWrite(led3, LOW);
+  digitalWrite(led6, LOW);
+  delay(500);
+  digitalWrite(led3, HIGH);
+  digitalWrite(led6, HIGH);
+  digitalWrite(led2, LOW);
+  digitalWrite(led7, LOW);
+  delay(500);
+  digitalWrite(led2, HIGH);
+  digitalWrite(led7, HIGH);
+  digitalWrite(led1, LOW);
+  digitalWrite(led8, LOW);
+  delay(500);
+  digitalWrite(led1, HIGH);
+  digitalWrite(led8, HIGH);-
 }
 
 
 
-/* Methods and functions */
 
-void emf() {
+void allblink() {
+  digitalWrite(led1, HIGH);
+  digitalWrite(led2, HIGH);
+  digitalWrite(led3, HIGH);
+  digitalWrite(led4, HIGH);
+  digitalWrite(led5, HIGH);
+  digitalWrite(led6, HIGH);
+  digitalWrite(led7, HIGH);
+  digitalWrite(led8, HIGH);
+  delay(500);
+  digitalWrite(led1, LOW);
+  digitalWrite(led2, LOW);
+  digitalWrite(led3, LOW);
+  digitalWrite(led4, LOW);
+  digitalWrite(led5, LOW);
+  digitalWrite(led6, LOW);
+  digitalWrite(led7, LOW);
+  digitalWrite(led8, LOW);
+  delay(500);
+}
+
+void allon() {
+  digitalWrite(led1, HIGH);
+  digitalWrite(led2, HIGH);
+  digitalWrite(led3, HIGH);
+  digitalWrite(led4, HIGH);
+  digitalWrite(led5, HIGH);
+  digitalWrite(led6, HIGH);
+  digitalWrite(led7, HIGH);
+  digitalWrite(led8, HIGH);
+}
+
+
+
+void alloff() {
+  digitalWrite(led1, LOW);
+  digitalWrite(led2, LOW);
+  digitalWrite(led3, LOW);
+  digitalWrite(led4, LOW);
+  digitalWrite(led5, LOW);
+  digitalWrite(led6, LOW);
+  digitalWrite(led7, LOW);
+  digitalWrite(led8, LOW);
+}
+
+int emf() {
   for (int i = 0; i < sample; i++) {
     array1[i] = analogRead(inPin);
     averaging += array1[i];
   }
-  
-  val = averaging / sample;
 
-  val = constrain(val, 0, 100);
-  val = map(val, 0, 60, 0, 255);
+  val = averaging / sample;
+  val = constrain(val, 0, 1023);
+  val = map(val, 0, 1023, 0, 255);
   averaging = 0;
-  Serial.print("EMF val: "); 
+
+  Serial.print("EMF val: ");
   Serial.print(val);
   Serial.print("\t");
+
+  return val;
 }
 
 // get the value of a nRF24L01p register
@@ -273,10 +374,10 @@ void printChannels(void)
 
 }
 
-void ledFadeToBeat(){
-    fadeRate -= 15;                         //  set LED fade value
-    fadeRate = constrain(fadeRate,0,255);   //  keep LED fade value from going into negative numbers!
-    analogWrite(fadePin,fadeRate);          //  fade LED
-  }
-  
+void ledFadeToBeat() {
+  fadeRate -= 15;                         //  set LED fade value
+  fadeRate = constrain(fadeRate, 0, 255); //  keep LED fade value from going into negative numbers!
+  analogWrite(fadePin, fadeRate);         //  fade LED
+}
+
 
