@@ -1,0 +1,68 @@
+#N canvas 542 22 717 752 10;
+#X obj 57 21 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
+;
+#X msg 57 47 \; pd dsp §1;
+#X floatatom 12 48 5 0 0 0 - - -;
+#X msg 45 193 open ambience_rain_outside.wav;
+#X msg 202 243 start;
+#X msg 205 274 stop;
+#X obj 242 357 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 167 310 readsf~;
+#X obj 156 350 dac~;
+#X msg 490 452 start;
+#X msg 489 476 stop;
+#X obj 644 540 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X msg 551 421 open \$1;
+#X obj 545 389 openpanel;
+#X obj 525 348 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 447 527 env~;
+#X obj 505 534 env~;
+#X obj 569 493 readsf~ 2;
+#X obj 558 533 dac~ 1 2;
+#X obj 538 610 vu 15 120 empty empty -1 -8 0 10 -66577 -1 1 0;
+#X obj 604 609 vu 15 120 empty empty -1 -8 0 10 -66577 -1 1 0;
+#X obj 450 566 - 100;
+#X obj 510 570 - 100;
+#X msg 539 50 start;
+#X msg 538 74 stop;
+#X obj 693 138 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 618 91 readsf~;
+#X obj 607 131 dac~;
+#X msg 600 19 open intro.wav;
+#X obj 266 305 readsf~;
+#X msg 280 192 open intro.wav;
+#X connect 0 0 2 0;
+#X connect 0 0 1 0;
+#X connect 3 0 7 0;
+#X connect 4 0 7 0;
+#X connect 4 0 29 0;
+#X connect 5 0 7 0;
+#X connect 5 0 29 0;
+#X connect 7 0 8 0;
+#X connect 7 1 6 0;
+#X connect 9 0 17 0;
+#X connect 10 0 17 0;
+#X connect 12 0 17 0;
+#X connect 13 0 12 0;
+#X connect 14 0 13 0;
+#X connect 15 0 21 0;
+#X connect 16 0 22 0;
+#X connect 17 0 18 0;
+#X connect 17 0 15 0;
+#X connect 17 1 18 1;
+#X connect 17 1 16 0;
+#X connect 17 2 11 0;
+#X connect 21 0 19 0;
+#X connect 22 0 20 0;
+#X connect 23 0 26 0;
+#X connect 24 0 26 0;
+#X connect 26 0 27 0;
+#X connect 26 1 25 0;
+#X connect 28 0 26 0;
+#X connect 29 0 8 0;
+#X connect 29 1 6 0;
+#X connect 30 0 29 0;
