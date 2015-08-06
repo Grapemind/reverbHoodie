@@ -15,6 +15,11 @@ SLIPEncodedSerial SLIPSerial(Serial);
 #include "nRF24L01.h"
 #include "RF24.h"
 
+#include "LiquidCrystal.h"
+#include "Wire.h"
+LiquidCrystal lcd(0);
+
+
 //
 // Hardware configuration
 //
@@ -34,11 +39,10 @@ int ledPin = 6;
 
 //  Pulse VARIABLES
 int pulsePin = A0;                 // Pulse Sensor purple wire connected to analog pin 0
-int blinkPin = 4;                // pin to blink led at each beat
+int blinkPin = 11;                // pin to blink led at each beat
 int fadePin = 3;                  // pin to do fancy classy fading blink at each beat
 int fadeRate = 0;                 // used to fade LED on with PWM on fadePin
 
-int norm;
 
 
 // these variables are volatile because they are used during the interrupt service routine!
@@ -48,6 +52,13 @@ volatile int IBI = 600;             // holds the time between beats, must be see
 volatile boolean Pulse = false;     // true when pulse wave is high, false when it's low
 volatile boolean QS = false;        // becomes true when Arduoino finds a beat.
 // End of pulse
+
+/* EMF Stuff */
+#define sample 300
+int inPin = A3;
+int val;
+int array1[sample];
+unsigned long averaging;
 
 
 void interruptSetup() {
@@ -61,10 +72,53 @@ void interruptSetup() {
 }
 
 
+void sendData(int Data,  char* Name )
+{
+  //declare the bundle
+  OSCBundle bndl;
+  //BOSCBundle's add' returns the OSCMessage so the message's 'add' can be composed together
+  bndl.add(Name).add((int32_t)Data);
+
+  SLIPSerial.beginPacket();
+  bndl.send(SLIPSerial); // send the bytes to the SLIP stream
+  SLIPSerial.endPacket(); // mark the end of the OSC Packet
+  bndl.empty(); // empty the bundle to free room for a new one
+
+  delay(100);
+}
+
+void ledFadeToBeat() {
+  fadeRate -= 15;                         //  set LED fade value
+  fadeRate = constrain(fadeRate, 0, 255); //  keep LED fade value from going into negative numbers!
+  analogWrite(fadePin, fadeRate);         //  fade LED
+}
+
+void emf() {
+  for (int i = 0; i < sample; i++) {
+    array1[i] = analogRead(inPin);
+    averaging += array1[i];
+  }
+
+  val = averaging / sample;
+  val = constrain(val, 0, 100);
+  val = map(val, 0, 60, 0, 255);
+  averaging = 0;
+}
+
+
 void setup(void)
 {
+  
+//Enable to test on an i2c LCD
+  //Set the screen size, in this case it's 16x2
+  lcd.begin(16, 2);
+  lcd.print("EMF   : ");
+  lcd.setCursor(0, 1);
+  lcd.print("Wi-Fi : ");
+  
   //begin SLIPSerial just like Serial
-  SLIPSerial.begin(9600);
+  SLIPSerial.begin(115200);
+  interruptSetup();                 // sets up to read Pulse Sensor signal every 2mS
 
   pinMode(blinkPin, OUTPUT);        // pin that will blink to your heartbeat!
   pinMode(fadePin, OUTPUT);         // pin that will fade to your heartbeat!
@@ -130,12 +184,17 @@ void loop(void)
       }
       radio.stopListening();
     }
-    sendData(norm, "reverb/wifi");
   }
 
-
-
-
+  // Print out channel measurements, clamped to a single hex digit
+  int i = 0;
+  int norm;
+  while ( i < num_channels )
+  {
+    norm = norm + values[i];
+    printf("%x", min(0xf, values[i] & 0xf));
+    ++i;
+  }
 
 
   if (QS == true) {                      // Quantified Self flag is true when arduino finds a heartbeat
@@ -143,40 +202,16 @@ void loop(void)
     QS = false;                      // reset the Quantified Self flag for next time
   }
 
+  emf();
+
+//  sendData(norm, "/reverb/wifi");
+//  sendData(BPM, "/reverb/pulse");
+//  sendData(val, "/reverb/emf");
+Serial.println(norm);
+  
+  
+  lcd.setCursor(8, 0);
+  lcd.print(val);
+  lcd.setCursor(8, 1);
+  lcd.print(norm);
 }
-
-
-void sendData(int Data,  char* Name )
-{
-  //declare the bundle
-  OSCBundle bndl;
-  //BOSCBundle's add' returns the OSCMessage so the message's 'add' can be composed together
-  bndl.add(Name).add((int32_t)Data);
-
-  SLIPSerial.beginPacket();
-  bndl.send(SLIPSerial); // send the bytes to the SLIP stream
-  SLIPSerial.endPacket(); // mark the end of the OSC Packet
-  bndl.empty(); // empty the bundle to free room for a new one
-
-  delay(100);
-}
-
-void ledFadeToBeat() {
-  fadeRate -= 15;                         //  set LED fade value
-  fadeRate = constrain(fadeRate, 0, 255); //  keep LED fade value from going into negative numbers!
-  analogWrite(fadePin, fadeRate);         //  fade LED
-}
-
-void printChannels()
-{
-  // Print out channel measurements, clamped to a single hex digit
-  int i = 0;
-  while ( i < num_channels )
-  {
-    norm = norm + values[i];
-    ++i;
-  }
-
-}
-
-// vim:ai:cin:sts=2 sw=2 ft=cpp
