@@ -100,7 +100,6 @@ void setup()
   pinMode(ledPin, OUTPUT);
   pinMode(buttonPin, INPUT);        // Hoodie Button
 
-  Serial.println("Wireless 2.4GHz Scanner ...");
 
   // Setup SPI
   SPI.begin();
@@ -154,10 +153,11 @@ while (buttonState == HIGH) {
   emf();            // initialise EMF print values
   scanChannels();   // Scan wifi channels
   outputChannels(); // output the result
-  Serial.print("Bpm: "); // Bpm value
-  Serial.print(BPM); // Print pulse value
-  Serial.print("\n");
-  analogWrite(ledPin, newVal);
+//  Serial.print("Bpm: "); // Bpm value
+//  Serial.print(BPM); // Print pulse value
+//  Serial.print("\n");
+//  analogWrite(ledPin, newVal);
+  
 }
 //}
 /*
@@ -188,9 +188,9 @@ void emf() {
   val = constrain(val, 0, 100);
   val = map(val, 0, 60, 0, 255);
   averaging = 0;
-  Serial.print("EMF val: ");
-  Serial.print(val);
-  Serial.print("\t");
+//  Serial.print("EMF val: ");
+//  Serial.print(val);
+//  Serial.print("\t");
 }
 
 
@@ -318,21 +318,25 @@ void outputChannels(void)
   }
 
   // indicate overall power
-  Serial.print("Norm :");
-  Serial.print(norm);
-  Serial.print("\t");
-  ledVal = norm;
-  newVal = map(ledVal, 5, 25, 0, 255);
-  Serial.print("LED val :");
-  Serial.print(newVal);
-  Serial.print("\t");
+//  Serial.print("Norm :");
+//  Serial.print(norm);
+//  Serial.print("\t");
+//  ledVal = norm;
+//  newVal = map(ledVal, 5, 25, 0, 255);
+//  Serial.print("LED val :");
+//  Serial.print(newVal);
+//  Serial.print("\t");
+  
+  sendData(norm, "/reverb/wifi");
+  sendData(BPM, "/reverb/pulse");
+  sendData(val, "/reverb/emf");
 }
 
 // give a visual reference between WLAN-channels and displayed data
 void printChannels(void)
 {
   // output approximate positions of WLAN-channels
-  Serial.println(">      1 2  3 4  5  6 7 8  9 10 11 12 13  14                     <");
+//  Serial.println(">      1 2  3 4  5  6 7 8  9 10 11 12 13  14                     <");
 
 }
 
