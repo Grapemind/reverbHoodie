@@ -1,15 +1,5 @@
-
-
 #include <SPI.h>
 #include <SoftwareSerial.h>
-
-#include <OSCBundle.h>
-#include <OSCBoards.h>
-
-
-#include <SLIPEncodedSerial.h>
-SLIPEncodedSerial SLIPSerial(Serial);
-
 
 // uses an nRF24L01p chip
 //     SS       -> 10
@@ -82,14 +72,6 @@ int newVal;
 
 void setup()
 {
-  //begin SLIPSerial just like Serial
-  SLIPSerial.begin(9600);   // set this as high as you can reliably run on your platform
-#if ARDUINO >= 100
-  while (!Serial)
-    ;   // Leonardo bug
-#endif
-
-
   Serial.begin(57600);
   interruptSetup();     // sets up to read Pulse Sensor signal every 2mS
   pinMode(buttonPin, INPUT);
@@ -119,32 +101,30 @@ void setup()
 
 /* The loop */
 
-/*
+/* 
   Prints emf, wifi channels and blinks logo lights. When activated by the hoodie.
-
+  
   Todo
-
+  
   -Serial print pulse value. # Done
   -Shift register, methods for turning desired pin on.
   -Pd
   -light animation.
-
+  
 */
 
 void loop()
 //{
-/*
-buttonState = digitalRead(buttonPin);
+  /*
+  buttonState = digitalRead(buttonPin);
 
-while (buttonState == HIGH) {
-  // turn LED on:
-  digitalWrite(ledPin, HIGH);
-  Serial.println("ON, Hoodie activated :)");*/
-  
-  
-{
+  while (buttonState == HIGH) {
+    // turn LED on:
+    digitalWrite(ledPin, HIGH);
+    Serial.println("ON, Hoodie activated :)");*/
+  {
 
-  if (QS == true) {                      // Quantified Self flag is true when arduino finds a heartbeat
+   if (QS == true) {                      // Quantified Self flag is true when arduino finds a heartbeat
     fadeRate = 255;                  // Set 'fadeRate' Variable to 255 to fade LED with pulse
     QS = false;                      // reset the Quantified Self flag for next time
   }
@@ -158,7 +138,7 @@ while (buttonState == HIGH) {
   Serial.print(BPM); // Print pulse value
   Serial.print("\n");
   analogWrite(ledPin, newVal);
-}
+} 
 //}
 /*
 while (buttonState == LOW) {
@@ -335,21 +315,6 @@ void printChannels(void)
   Serial.println(">      1 2  3 4  5  6 7 8  9 10 11 12 13  14                     <");
 
 }
-
-void sendData(int Data,  char* Name )
-{
-  //declare the bundle
-  OSCBundle bndl;
-  //BOSCBundle's add' returns the OSCMessage so the message's 'add' can be composed together
-  bndl.add(Name).add((int32_t)Data);
-
-  SLIPSerial.beginPacket();
-  bndl.send(SLIPSerial); // send the bytes to the SLIP stream
-  SLIPSerial.endPacket(); // mark the end of the OSC Packet
-  bndl.empty(); // empty the bundle to free room for a new one
-
-  delay(100);
-}
-
+    
 
 
