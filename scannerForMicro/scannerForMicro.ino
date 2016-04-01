@@ -15,9 +15,7 @@ SLIPEncodedSerial SLIPSerial(Serial);
 #include "nRF24L01.h"
 #include "RF24.h"
 
-#include "LiquidCrystal.h"
 #include "Wire.h"
-LiquidCrystal lcd(0);
 
 
 //
@@ -26,19 +24,19 @@ LiquidCrystal lcd(0);
 
 // Set up nRF24L01 radio on SPI bus plus pins 7 & 8
 
-RF24 radio(9, 10);
+RF24 radio(9, SS);
 
 //
 // Channel info
 //
 
-const uint8_t num_channels = 128;
+const uint8_t num_channels = 64;
 uint8_t values[num_channels];
 
 int ledPin = 6;
 
 //  Pulse VARIABLES
-int pulsePin = A0;                 // Pulse Sensor purple wire connected to analog pin 0
+int pulsePin = A3;                 // Pulse Sensor purple wire connected to analog pin 0
 int blinkPin = 11;                // pin to blink led at each beat
 int fadePin = 3;                  // pin to do fancy classy fading blink at each beat
 int fadeRate = 0;                 // used to fade LED on with PWM on fadePin
@@ -55,7 +53,7 @@ volatile boolean QS = false;        // becomes true when Arduoino finds a beat.
 
 /* EMF Stuff */
 #define sample 300
-int inPin = A3;
+int inPin = A4;
 int val;
 int array1[sample];
 unsigned long averaging;
@@ -109,12 +107,7 @@ void emf() {
 void setup(void)
 {
   
-//Enable to test on an i2c LCD
-  //Set the screen size, in this case it's 16x2
-  lcd.begin(16, 2);
-  lcd.print("EMF   : ");
-  lcd.setCursor(0, 1);
-  lcd.print("Wi-Fi : ");
+
   
   //begin SLIPSerial just like Serial
   SLIPSerial.begin(115200);
@@ -204,14 +197,11 @@ void loop(void)
 
   emf();
 
-//  sendData(norm, "/reverb/wifi");
-//  sendData(BPM, "/reverb/pulse");
-//  sendData(val, "/reverb/emf");
-Serial.println(norm);
+  sendData(norm, "/reverb/wifi");
+  sendData(BPM, "/reverb/pulse");
+  sendData(val, "/reverb/emf");
+  Serial.println(norm);
   
   
-  lcd.setCursor(8, 0);
-  lcd.print(val);
-  lcd.setCursor(8, 1);
-  lcd.print(norm);
+
 }
